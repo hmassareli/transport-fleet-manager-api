@@ -24,7 +24,11 @@ export default class PilotsController {
     /**
      * Validate request body against the schema
      */
+
     const payload = await ctx.request.validate({ schema: pilotSchema })
+    if (payload.ship.fuelLevel < 0 || payload.ship.fuelLevel > payload.ship.fuelCapacity) {
+      throw new Error('Fuel level cannot be negative or greater than fuel capacity')
+    }
 
     const { ship: shipData, ...pilotData } = payload
     const ship = await Ship.create(shipData)

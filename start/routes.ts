@@ -29,3 +29,5 @@ Route.group(() => {
 Route.resource('pilots', 'PilotsController').apiOnly()
 
 Route.resource('contracts', 'ContractsController').apiOnly()
+
+Route.post('/travels/:id', 'TravelsController')
