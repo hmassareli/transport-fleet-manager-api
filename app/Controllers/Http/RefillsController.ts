@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import Pilot from 'App/Models/Pilot'
+import Report from 'App/Models/Report'
 import Ship from 'App/Models/Ship'
 export default class RefillsController {
   public async index({}: HttpContextContract) {}
@@ -25,6 +26,12 @@ export default class RefillsController {
     await pilot.save()
     ship.fuelLevel += payload.refills
     await ship.save()
+
+    await Report.create({
+      type: 'refill_bought',
+      value: payload.refills * 7,
+      pilotId: pilot.id,
+    })
 
     return { message: 'Refill successful' }
   }
