@@ -75,16 +75,16 @@ const checkIfRouteIsValid = (from: string, to: string) => {
 }
 //Andvari	Demeter	Aqua	Calas are the possible planets
 export default class TravelsController {
-  public async handle({ request, params }: HttpContextContract) {
-    const pilotId = params.id
+  public async handle({ request }: HttpContextContract) {
     const payload = await request.validate({
       schema: schema.create({
+        pilotId: schema.number([rules.exists({ table: 'pilots', column: 'id' })]),
         to: schema.string([rules.regex(/^(Andvari|Demeter|Aqua|Calas)$/)]),
         shipId: schema.number(),
       }),
     })
 
-    const pilot = await Pilot.findOrFail(pilotId)
+    const pilot = await Pilot.findOrFail(payload.pilotId)
     const ship = await Ship.findOrFail(payload.shipId)
 
     if (!checkIfRouteIsValid(pilot.location, payload.to)) {
@@ -95,8 +95,6 @@ export default class TravelsController {
     }
     ship.fuelLevel = ship.fuelLevel - travelOptions[pilot.location][payload.to].fuelCost
     await ship.save()
-
-    console.log(ship.fuelLevel, travelOptions[pilot.location][payload.to].fuelCost)
 
     await pilot
       .related('contracts')
@@ -124,7 +122,6 @@ export default class TravelsController {
         .where('destination_planet', payload.to)
         .update({ status: 'completed' })
     }
-    console.log(ship.fuelLevel, travelOptions[pilot.location][payload.to].fuelCost)
 
     pilot.location = payload.to
 
