@@ -25,6 +25,8 @@ export default class RefillsController {
     await pilot.save()
     ship.fuelLevel += payload.refills
     await ship.save()
+
+    return { message: 'Refill successful' }
   }
 
   public async store({}: HttpContextContract) {}
