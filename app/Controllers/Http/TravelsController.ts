@@ -125,7 +125,7 @@ export default class TravelsController {
 
       await Report.create({
         type: 'transportation_completed',
-        value: -valueToAdd,
+        value: valueToAdd,
         pilotId: pilot.id,
         contractId: inProgressContractsFromPilot[0].id,
       })

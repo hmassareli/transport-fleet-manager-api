@@ -35,3 +35,5 @@ Route.post('/travels', 'TravelsController')
 Route.post('/refill', 'RefillsController')
 
 Route.post('/accept-contract', 'AcceptContractsController')
+
+Route.resource('reports', 'ReportsController').apiOnly()
