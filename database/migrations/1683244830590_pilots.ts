@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('name')
       table.integer('age')
       table.integer('credits')
-      table.string('location')
+      table.enum('location', ['Andvari', 'Demeter', 'Aqua', 'Calas']).defaultTo('Andvari')
       table.string('certification')
       table.integer('ship_id').unsigned().references('id').inTable('ships')
 
