@@ -16,6 +16,15 @@ export default class RefillsController {
 
     const pilot = await Pilot.findOrFail(payload.pilotId)
     const ship = await Ship.findOrFail(payload.shipId)
+
+    if (pilot.credits < payload.refills * 7) {
+      throw new Error('Not enough credits')
+    }
+
+    pilot.credits -= payload.refills * 7
+    await pilot.save()
+    ship.fuelLevel += payload.refills
+    await ship.save()
   }
 
   public async store({}: HttpContextContract) {}
