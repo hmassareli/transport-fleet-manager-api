@@ -1,5 +1,6 @@
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
+import Contract from './Contract'
 import Ship from './Ship'
 
 export default class Pilot extends BaseModel {
@@ -8,6 +9,9 @@ export default class Pilot extends BaseModel {
 
   @column()
   public name: string
+
+  @hasMany(() => Contract)
+  public contracts: HasMany<typeof Contract>
 
   @column()
   public certification: string

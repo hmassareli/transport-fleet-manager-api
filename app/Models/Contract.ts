@@ -9,6 +9,12 @@ export default class Contract extends BaseModel {
   @column()
   public description: string
 
+  @column()
+  public status: string
+
+  @column()
+  public pilotId: number
+
   @hasMany(() => Resource)
   public payload: HasMany<typeof Resource>
 
