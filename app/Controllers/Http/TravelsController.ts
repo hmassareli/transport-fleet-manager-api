@@ -127,7 +127,7 @@ export default class TravelsController {
 
     await pilot.save()
 
-    await pilot.load('ship')
+    await pilot.load('ships')
 
     return {
       message: 'Travel completed!',

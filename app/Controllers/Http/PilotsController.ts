@@ -1,7 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import Pilot from 'App/Models/Pilot'
-import Ship from 'App/Models/Ship'
 import { Planets } from './ContractsController'
 
 export default class PilotsController {
@@ -16,11 +15,13 @@ export default class PilotsController {
       credits: schema.number(),
       certification: schema.string({ trim: true }),
       location: schema.string({ trim: true }),
-      ship: schema.object().members({
-        fuelCapacity: schema.number(),
-        fuelLevel: schema.number(),
-        weightCapacity: schema.number(),
-      }),
+      ships: schema.array().members(
+        schema.object().members({
+          fuelCapacity: schema.number(),
+          fuelLevel: schema.number(),
+          weightCapacity: schema.number(),
+        })
+      ),
     })
 
     /**
@@ -28,18 +29,21 @@ export default class PilotsController {
      */
 
     const payload = await ctx.request.validate({ schema: pilotSchema })
-    if (payload.ship.fuelLevel < 0 || payload.ship.fuelLevel > payload.ship.fuelCapacity) {
-      throw new Error('Fuel level cannot be negative or greater than fuel capacity')
-    }
+    payload.ships.map((ship) => {
+      if (ship.fuelLevel < 0 || ship.fuelLevel > ship.fuelCapacity) {
+        throw new Error('Fuel level cannot be negative or greater than fuel capacity')
+      }
+    })
 
     if (Planets[payload.location] === undefined) {
       throw new Error('Invalid location, it should be a planet')
     }
 
-    const { ship: shipData, ...pilotData } = payload
-    const ship = await Ship.create(shipData)
-    const pilot = await ship.related('pilot').create(pilotData)
-    await pilot.load('ship')
+    const { ships: shipData, ...pilotData } = payload
+
+    const pilot = await Pilot.create(pilotData)
+    const ship = await pilot.related('ships').createMany(shipData)
+    await pilot.load('ships')
 
     return pilot
   }

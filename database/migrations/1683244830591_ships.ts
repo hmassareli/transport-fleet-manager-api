@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.integer('fuel_capacity').notNullable()
       table.integer('fuel_level').notNullable()
       table.integer('weight_capacity').notNullable()
-
+      table.integer('pilot_id').unsigned().references('id').inTable('pilots')
       table.timestamps(true, true)
     })
   }

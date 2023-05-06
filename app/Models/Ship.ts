@@ -1,4 +1,4 @@
-import { BaseModel, HasOne, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
 import Pilot from './Pilot'
 
@@ -15,8 +15,11 @@ export default class Ship extends BaseModel {
   @column()
   public weightCapacity: number
 
-  @hasOne(() => Pilot)
-  public pilot: HasOne<typeof Pilot>
+  @belongsTo(() => Pilot)
+  public pilot: BelongsTo<typeof Pilot>
+
+  @column()
+  public pilotId: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

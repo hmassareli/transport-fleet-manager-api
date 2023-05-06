@@ -11,7 +11,6 @@ export default class extends BaseSchema {
       table.integer('credits')
       table.enum('location', ['Andvari', 'Demeter', 'Aqua', 'Calas']).defaultTo('Andvari')
       table.string('certification')
-      table.integer('ship_id').unsigned().references('id').inTable('ships')
 
       table.timestamps(true, true)
     })
