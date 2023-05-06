@@ -1,6 +1,7 @@
 import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
 import Contract from './Contract'
+import Report from './Report'
 import Ship from './Ship'
 
 export default class Pilot extends BaseModel {
@@ -27,6 +28,9 @@ export default class Pilot extends BaseModel {
 
   @hasMany(() => Ship)
   public ships: HasMany<typeof Ship>
+
+  @hasMany(() => Report)
+  public reports: HasMany<typeof Report>
 
   @column()
   public shipId: number

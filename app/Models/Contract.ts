@@ -1,5 +1,6 @@
 import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
+import Report from './Report'
 import Resource from './Resource'
 
 export default class Contract extends BaseModel {
@@ -17,6 +18,9 @@ export default class Contract extends BaseModel {
 
   @hasMany(() => Resource)
   public payload: HasMany<typeof Resource>
+
+  @hasMany(() => Report)
+  public reports: HasMany<typeof Report>
 
   @column()
   public originPlanet: string

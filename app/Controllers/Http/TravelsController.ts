@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import Pilot from 'App/Models/Pilot'
+import Report from 'App/Models/Report'
 import Ship from 'App/Models/Ship'
 
 const travelOptions = {
@@ -121,6 +122,13 @@ export default class TravelsController {
         .where('status', 'in_progress')
         .where('destination_planet', payload.to)
         .update({ status: 'completed' })
+
+      await Report.create({
+        type: 'transportation_completed',
+        value: -valueToAdd,
+        pilotId: pilot.id,
+        contractId: inProgressContractsFromPilot[0].id,
+      })
     }
 
     pilot.location = payload.to
