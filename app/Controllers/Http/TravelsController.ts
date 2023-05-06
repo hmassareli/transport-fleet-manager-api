@@ -70,7 +70,7 @@ const travelOptions = {
     },
   },
 }
-const checkIfRouteIsValid = async (from: string, to: string) => {
+const checkIfRouteIsValid = (from: string, to: string) => {
   return travelOptions[from][to].isPossible
 }
 //Andvari	Demeter	Aqua	Calas are the possible planets
@@ -79,24 +79,56 @@ export default class TravelsController {
     const pilotId = params.id
     const payload = await request.validate({
       schema: schema.create({
-        from: schema.string([rules.regex(/^(Andvari|Demeter|Aqua|Calas)$/)]),
         to: schema.string([rules.regex(/^(Andvari|Demeter|Aqua|Calas)$/)]),
         shipId: schema.number(),
       }),
     })
-    if (await !checkIfRouteIsValid(payload.from, payload.to)) {
-      return { message: 'This route is invalid!' }
-    }
+
     const pilot = await Pilot.findOrFail(pilotId)
     const ship = await Ship.findOrFail(payload.shipId)
 
-    if (ship.fuelLevel < travelOptions[payload.from][payload.to].fuelCost) {
-      return { message: 'Not enough fuel!' }
+    if (!checkIfRouteIsValid(pilot.location, payload.to)) {
+      throw new Error('Invalid route')
     }
-    pilot.location = payload.to
-    ship.fuelLevel -= travelOptions[payload.from][payload.to].fuelCost
-    await pilot.save()
+    if (ship.fuelLevel < travelOptions[pilot.location][payload.to].fuelCost) {
+      throw new Error('Not enough fuel')
+    }
+    ship.fuelLevel = ship.fuelLevel - travelOptions[pilot.location][payload.to].fuelCost
     await ship.save()
+
+    console.log(ship.fuelLevel, travelOptions[pilot.location][payload.to].fuelCost)
+
+    await pilot
+      .related('contracts')
+      .query()
+      .where('status', 'accepted')
+      .where('origin_planet', payload.to)
+      .update({ status: 'in_progress' })
+
+    const inProgressContractsFromPilot = await pilot
+      .related('contracts')
+      .query()
+      .where('status', 'in_progress')
+      .where('destination_planet', payload.to)
+
+    if (inProgressContractsFromPilot.length > 0) {
+      const valueToAdd = inProgressContractsFromPilot.reduce((acc, curr) => {
+        acc += curr.value
+        return acc
+      }, 0)
+      pilot.credits += valueToAdd
+      await pilot
+        .related('contracts')
+        .query()
+        .where('status', 'in_progress')
+        .where('destination_planet', payload.to)
+        .update({ status: 'completed' })
+    }
+    console.log(ship.fuelLevel, travelOptions[pilot.location][payload.to].fuelCost)
+
+    pilot.location = payload.to
+
+    await pilot.save()
 
     await pilot.load('ship')
 
